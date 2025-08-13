@@ -1,14 +1,20 @@
-import { Table } from "antd";
+import { notification, Table } from "antd";
 import { useEffect, useState } from "react";
 import { getUserApi } from "../util/api";
 
 export default function User () {
     const [dataSource, setDataSource] = useState([]);
+    const [api, contextHolder] = notification.useNotification();
     useEffect(() => {
         const fetchUser = async() => {
             const res = await getUserApi();
-            if (res) {
+            if (!res?.message) {
                 setDataSource(res);
+            }else{
+                api.error({
+                    message: "Unauthorized",
+                    description: res.message
+                })
             }
         }
         fetchUser();
@@ -34,11 +40,15 @@ export default function User () {
     ];
 
     return(
-        <div style={{padding: 20}}>
+        <>
+            {contextHolder}
+            <div style={{padding: 20}}>
             <Table 
                 bordered
                 dataSource={dataSource} columns={columns} 
                 rowKey={"_id"}/>
-        </div>
+             </div>
+        </>
+        
     )
 }
